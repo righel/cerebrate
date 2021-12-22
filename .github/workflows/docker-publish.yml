@@ -71,4 +71,4 @@ jobs:
           context: ./docker/nginx
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ env.REGISTRY }}/${{ env.REPO_ORG }}/${{ env.REPO_NAME }}-${{ env.SERVICE}}:${{ github.event.inputs.release_number }}, ${{ env.REPO_ORG }}/${{ env.REPO_NAME }}-${{ env.docker-image}}:latest
-y          labels: ${{ steps.meta.outputs.labels }}
+          labels: ${{ steps.meta.outputs.labels }}
