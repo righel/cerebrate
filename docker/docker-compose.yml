@@ -2,8 +2,7 @@ version: "3"
 services:
   nginx:
     container_name: cerebrate_nginx
-    image: ghcr.io/righel/cerebrate-nginx
-    # image: ghcr.io/cerebrate-project/cerebrate-www
+    image: cerebrate-project/cerebrate-nginx
     build:
       context: ./nginx
     volumes:
@@ -17,8 +16,7 @@ services:
 
   php-fpm:
     container_name: cerebrate_php-fpm
-    image: ghcr.io/righel/cerebrate-php-fpm
-    # image: ghcr.io/cerebrate-project/cerebrate-core
+    image: cerebrate-project/cerebrate-php-fpm
     build:
       context: ./php-fpm
       args:
