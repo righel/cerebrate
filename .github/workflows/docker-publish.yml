@@ -43,6 +43,7 @@ jobs:
         env:
           VERSION: ${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
           SERVICE: "php-fpm"
+          REGISTRY: ${{ env.REGISTRY }}
         with:
           file: docker/php-fpm/Dockerfile
           context: ./docker/php-fpm
@@ -58,6 +59,7 @@ jobs:
         env:
           VERSION: ${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
           SERVICE: "nginx"
+          REGISTRY: ${{ env.REGISTRY }}
         with:
           file: docker/nginx/Dockerfile
           context: ./docker/nginx
