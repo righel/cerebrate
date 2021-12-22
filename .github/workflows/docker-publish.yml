@@ -43,12 +43,11 @@ jobs:
         env:
           VERSION: ${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
           SERVICE: "php-fpm"
-          REGISTRY: ${{ env.REGISTRY }}
         with:
           file: docker/php-fpm/Dockerfile
           context: ./docker/php-fpm
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ env.REGISTRY }}/${{ env.REPO_NAME }}-${{ env.SERVICE}}:${{ env.VERSION }}, /${{ env.REPO_NAME }}-${{ env.SERVICE}}:latest
+          tags: ${{ env.REGISTRY }}/${{ env.REPO_NAME }}-${{ env.SERVICE}}:${{ env.VERSION }}, ${{ env.REGISTRY }}/${{ env.REPO_NAME }}-${{ env.SERVICE}}:latest
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
             "COMPOSER_VERSION=2.1.14"
@@ -59,10 +58,9 @@ jobs:
         env:
           VERSION: ${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
           SERVICE: "nginx"
-          REGISTRY: ${{ env.REGISTRY }}
         with:
           file: docker/nginx/Dockerfile
           context: ./docker/nginx
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ env.REGISTRY }}/${{ env.REPO_NAME }}-${{ env.SERVICE}}:${{ env.VERSION }}, /${{ env.REPO_NAME }}-${{ env.SERVICE}}:latest
+          tags: ${{ env.REGISTRY }}/${{ env.REPO_NAME }}-${{ env.SERVICE}}:${{ env.VERSION }}, ${{ env.REGISTRY }}/${{ env.REPO_NAME }}-${{ env.SERVICE}}:latest
           labels: ${{ steps.meta.outputs.labels }}
