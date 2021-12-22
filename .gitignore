@@ -1,5 +1,6 @@
 composer.lock
 config/app_local.php
+config.json
 config/Migrations/schema-dump-default.lock
 logs
 tmp
@@ -7,3 +8,5 @@ vendor
 webroot/theme/node_modules
 .vscode
 docker/run/
+docker/nginx/ssl/*
+docker/docker-compose.override.yml

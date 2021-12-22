@@ -1,0 +1,20 @@
+version: "3"
+services:
+  # www:
+  #   command: [ nginx-debug, '-g', 'daemon off;' ]
+
+  php-fpm:
+    build:
+      context: ./php-fpm
+      args:
+        DEBUG: "true"
+        PHP_VERSION: "7.4"
+        COMPOSER_VERSION: "2.1.14"
+    volumes:
+      - ./php-fpm/etc/docker-php-ext-xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+    # environment:
+    #   PHP_IDE_CONFIG: "serverName=cerebrate"
+
+  database:
+    ports:
+      - "33060:3306"

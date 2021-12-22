@@ -1,0 +1,28 @@
+server {
+    # see: https://github.com/docker-library/docs/tree/master/nginx#using-environment-variables-in-nginx-configuration-new-in-119
+    listen ${NGINX_PORT} ssl;
+
+    root /var/www/app/webroot;
+    index index.php;
+
+    server_name ${NGINX_HOST};
+
+    ssl_certificate /etc/nginx/ssl/cert.pem;
+    ssl_certificate_key /etc/nginx/ssl/key.pem;
+
+    access_log /var/log/nginx/cerebrate.access.log;
+    error_log /var/log/nginx/cerebrate.error.log;
+
+    location / {
+        try_files $uri $uri/ /index.php?$args;
+    }
+
+    location ~ \.php$ {
+        try_files $uri =404;
+        include fastcgi_params;
+        fastcgi_pass php-fpm:9000;
+        fastcgi_index index.php;
+        fastcgi_intercept_errors on;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+    }
+}

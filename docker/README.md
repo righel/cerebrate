@@ -1,47 +1,128 @@
-# Database init
+# How to run #
 
-For the `docker-compose` setup to work you must initialize database with
-what is in `../INSTALL/mysql.sql`
+Dependencies:
+  * `docker`. See [https://docs.docker.com/engine/installation](https://docs.docker.com/engine/installation)
+  * `docker-compose`. See [docs.docker.com/compose/install](https://docs.docker.com/compose/install/)
+
+Run:
+```
+$ docker-compose up -d
+...
+cerebrate_php-fpm   | Finished bootstrapping the containers.
+cerebrate_php-fpm   | 
+cerebrate_php-fpm   | ____ ____ ____ ____ ___  ____ ____ ___ ____ 
+cerebrate_php-fpm   | |    |___ |__/ |___ |__] |__/ |__|  |  |___ 
+cerebrate_php-fpm   | |___ |___ |  \ |___ |__] |  \ |  |  |  |___ 
+cerebrate_php-fpm   | 
+cerebrate_php-fpm   | 
+cerebrate_php-fpm   | Starting php-fpm...
+cerebrate_php-fpm   | [21-Dec-2021 14:32:26] NOTICE: fpm is running, pid 1
+cerebrate_php-fpm   | [21-Dec-2021 14:32:26] NOTICE: ready to handle connections
+``` 
+_This will initialise and start all the containers._
+* Once the Cerebrate banner is shown, you can browse the web: [localhost:8443](https://localhost:8443)
+* Default credentials `admin:Password1234`
+
+If you the containers in the background run:
+```
+$ docker-compose up -d
+...
+Creating cerebrate_nginx    ... done
+Creating cerebrate_database ... done
+Creating cerebrate_php-fpm  ... done
+```
+
+## Containers and volumes ##
+
+Cerebrate is composed by the following containers:
+
+| Service            | Base Image | External Port | Internal Port (not exposed) |
+| ------------------ | ---------- | ------------- | --------------------------- |
+| cerebrate_nginx    | nginx      | 8443          | 443                         |
+| cerebrate_php-fpm  | php-fpm    | -             | 9000                        |
+| cerebrate_database | mariadb    | -             | 3306                        |
+
+
+* The database data files will be located in `./run/database`.
+* Application logs (CakePHP / Cerebrate) will be stored in `./run/logs`.
+* Application temporary files will be stored in `./run/tmp`.
+
+## Configuration
+The recommended way to customize your docker deployment is by introducing a `docker-compose.override.yml` file, you can use `docker-compose.override.dist.yml` as a template.
+### PHP
+If you want override or add new php settings you can add them to `php-fpm-conf-overrides.conf` or mount different config files if you wish:
+
+```yaml
+# docker-compose.override.yml
+version: "3"
+services:
+  php-fpm:
+    volumes:
+      - ./20-xdebug.conf:/usr/local/etc/php-fpm.d/20-xdebug.conf
+```
+
+### SSL
+By default [Nginx](https://www.nginx.com/) Dockefile generates a self-signed certificate.
+You can override this certificate with:
+
+```yaml
+# docker-compose.override.yml
+version: "3"
+services:
+  www:
+    volumes:
+      - ./nginx/ssl:/etc/nginx/ssl
+```
+
+## Development
+`docker-compose.override.dev.yml` offers a good set of customizations to ease Cerebrate development, such as installing xdebug and exposing ports for all internal containers.
+
+Run:
 
 ```
-mkdir -p run/dbinit/
-cp ../INSTALL/mysql.sql run/dbinit/
+$ docker-compose -f docker-compose.yml -f docker-compose.override.dev.yml up --build --force-recreate
+...
+cerebrate_php-fpm | Starting php-fpm...
+cerebrate_php-fpm | [21-Dec-2021 16:53:38] NOTICE: fpm is running, pid 1
+cerebrate_php-fpm | [21-Dec-2021 16:53:38] NOTICE: ready to handle connections
 ```
 
-The MariaDB container has a volume mounted as follow
-`- ./run/dbinit:/docker-entrypoint-initdb.d/:ro`
-
-So that on startup the container will source files in this directory to seed
-the database. Once it's done the container will run normally and Cerebrate will
-be able to roll its database migration scripts
-
-# Actual data and volumes
-
-The actual database will be located in `./run/database` exposed with the
-following volume `- ./run/database:/var/lib/mysql`
-
-Application logs (CakePHP / Cerebrate) will be stored in `./run/logs`,
-volume `- ./run/logs:/var/www/html/logs`
-
-You're free to change those parameters if you're using Swarm, Kubernetes or
-your favorite config management tool to deploy this stack
-
-# Building yourself
-
-You can create the following Makefile in basedir of this repository
-and issue `make image`
-
+If you encounter permissions issues when trying to modify the source files from your host, add your user to www-data group:
+```bash
+sudo usermod -a -G www-data your_user
+chgrp your_user .
+chmod g+rwxs .
 ```
-COMPOSER_VERSION?=2.1.5
-PHP_VERSION?=7.4
-DEBIAN_RELEASE?=buster
-IMAGE_NAME?=cerebrate:latest
 
-image:
-	docker build -t $(IMAGE_NAME) \
-		-f docker/Dockerfile \
-		--build-arg COMPOSER_VERSION=$(COMPOSER_VERSION) \
-		--build-arg PHP_VERSION=$(PHP_VERSION) \
-		--build-arg DEBIAN_RELEASE=$(DEBIAN_RELEASE) \
-		.
+### Xdebug
+`docker-compose.override.dev.yml` adds the `docker-php-ext-xdebug.ini` php configuration file with Xdebug 3 enabled, by default connecting to the host `host.docker.internal` which resolves in the host of the docker engine and on the default `9003` port.
+
+By default Xdebug will debug requests that have a `trigger`, for example `XDEBUG_SESSION_START` as a query string parameter.
+
+To read more about Xdebug triggers:
+* https://xdebug.org/docs/all_settings#start_with_request
+
+Alternatively, to debug all requests, you can change the following setting:
+```
+# docker-php-ext-xdebug.ini
+xdebug.start_with_request=yes
+``` 
+
+Sample config file for `vscode`:
+```json
+# launch.json
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Listen for Xdebug",
+            "type": "php",
+            "request": "launch",
+            "port": 9003,
+            "pathMappings": {
+                "/var/www/app/": "${workspaceRoot}/",
+            },
+        },
+    ]
+}
 ```

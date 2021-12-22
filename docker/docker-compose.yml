@@ -1,28 +1,62 @@
 version: "3"
 services:
-  database:
-    image: mariadb:10.6
-    restart: always
-    volumes:
-      - ./run/database:/var/lib/mysql
-      - ./run/dbinit:/docker-entrypoint-initdb.d/:ro
-    environment:
-      MARIADB_RANDOM_ROOT_PASSWORD: "yes"
-      MYSQL_DATABASE: "cerebrate"
-      MYSQL_USER: "cerebrate"
-      MYSQL_PASSWORD: "etarberec"
   www:
-    image: ghcr.io/cerebrate-project/cerebrate:main
-    ports:
-      - "8080:80"
+    container_name: cerebrate_nginx
+    image: ghcr.io/righel/cerebrate-www
+    # image: ghcr.io/cerebrate-project/cerebrate-www
+    build:
+      context: ./nginx
     volumes:
-      - ./run/logs:/var/www/html/logs
+      - ../webroot:/var/www/app/webroot
+      - ./nginx/nginx.conf.template:/etc/nginx/templates/default.conf.template
     environment:
-      DEBUG: "true"
+      NGINX_HOST: cerebrate.local
+      NGINX_PORT: 443
+    ports:
+      - "8443:443"
+
+  php-fpm:
+    container_name: cerebrate_php-fpm
+    image: ghcr.io/righel/cerebrate-core
+    # image: ghcr.io/cerebrate-project/cerebrate-core
+    build:
+      context: ./php-fpm
+      args:
+        PHP_VERSION: "7.4"
+        COMPOSER_VERSION: "2.1.14"
+    volumes:
+      - ../composer.json:/var/www/app/composer.json
+      - ../src:/var/www/app/src
+      - ../webroot:/var/www/app/webroot
+      - ../templates:/var/www/app/templates
+      - ../plugins:/var/www/app/plugins
+      - ../config:/var/www/app/config
+      - ../bin:/var/www/app/bin
+      - ../libraries:/var/www/app/libraries
+      - ../resources:/var/www/app/resources
+      - ../config/config.example.json:/var/www/app/config.json
+      - ./php-fpm/etc/app_local.php:/var/www/app/config/app_local.php
+      - ./run/logs:/var/www/app/logs
+      - ./run/tmp:/var/www/app/tmp
+      - ./wait-for-it.sh:/usr/local/bin/wait-for-it.sh:ro
+      - ./php-fpm/etc/php-fpm-overrides.conf:/usr/local/etc/php-fpm.d/php-fpm-overrides.conf
+    entrypoint: "wait-for-it.sh -t 0 -h database -p 3306 -- /entrypoint.sh php-fpm -F"
+    environment:
       CEREBRATE_DB_USERNAME: "cerebrate"
       CEREBRATE_DB_PASSWORD: "etarberec"
       CEREBRATE_DB_NAME: "cerebrate"
       CEREBRATE_DB_HOST: database
       CEREBRATE_SECURITY_SALT: supersecret
-    depends_on:
-      - database
+
+  database:
+    image: mariadb:10.6
+    container_name: cerebrate_database
+    restart: always
+    volumes:
+      - ./run/database:/var/lib/mysql
+      - ../INSTALL/mysql.sql:/docker-entrypoint-initdb.d/mysql.sql:ro
+    environment:
+      MARIADB_RANDOM_ROOT_PASSWORD: "yes"
+      MYSQL_DATABASE: "cerebrate"
+      MYSQL_USER: "cerebrate"
+      MYSQL_PASSWORD: "etarberec"

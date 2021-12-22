@@ -44,7 +44,6 @@
     "scripts": {
         "post-install-cmd": "App\\Console\\Installer::postInstall",
         "post-create-project-cmd": "App\\Console\\Installer::postInstall",
-        "post-autoload-dump": "Cake\\Composer\\Installer\\PluginInstaller::postAutoloadDump",
         "check": [
             "@test",
             "@cs-check"
@@ -52,7 +51,13 @@
         "cs-check": "phpcs --colors -p --standard=vendor/cakephp/cakephp-codesniffer/CakePHP src/ tests/",
         "cs-fix": "phpcbf --colors --standard=vendor/cakephp/cakephp-codesniffer/CakePHP src/ tests/",
         "stan": "phpstan analyse src/",
-        "test": "phpunit --colors=always"
+        "test": "phpunit --colors=always",
+        "migrate": [
+            "./bin/cake migrations migrate --no-lock",
+            "./bin/cake migrations migrate -p tags --no-lock",
+            "./bin/cake migrations migrate -p ADmad/SocialAuth --no-lock"
+        ],
+        "clear-cakephp-cache": "./bin/cake cache clear_all"
     },
     "prefer-stable": true,
     "config": {

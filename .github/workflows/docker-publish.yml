@@ -2,10 +2,10 @@ name: Docker
 
 on:
   push:
-    branches: [ main ]
-    tags: [ 'v*.*' ]
+    branches: [main]
+    tags: ["v*.*"]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 env:
   REGISTRY: ghcr.io
@@ -38,15 +38,23 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
       # https://github.com/docker/build-push-action
-      - name: Build and push Docker image
+      - name: Build and push php-fpm Docker image
         uses: docker/build-push-action@v2
         with:
-          file: docker/Dockerfile
-          context: .
+          file: docker/php-fpm/Dockerfile
+          context: ./docker/php-fpm
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: core-${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            "COMPOSER_VERSION=2.1.5"
+            "COMPOSER_VERSION=2.1.14"
             "PHP_VERSION=7.4"
-            "DEBIAN_RELEASE=buster"
+
+      - name: Build and push nginx Docker image
+        uses: docker/build-push-action@v2
+        with:
+          file: docker/nginx/Dockerfile
+          context: ./docker/nginx
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: www-${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
