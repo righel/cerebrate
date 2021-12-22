@@ -20,10 +20,10 @@ cerebrate_php-fpm   | [21-Dec-2021 14:32:26] NOTICE: fpm is running, pid 1
 cerebrate_php-fpm   | [21-Dec-2021 14:32:26] NOTICE: ready to handle connections
 ``` 
 _This will initialise and start all the containers._
-* Once the Cerebrate banner is shown, you can browse the web: [localhost:8443](https://localhost:8443)
+* Once the Cerebrate banner is shown, you can browse the web: [https://localhost:8443](https://localhost:8443)
 * Default credentials `admin:Password1234`
 
-If you the containers in the background run:
+To run the containers in the background:
 ```
 $ docker-compose up -d
 ...
@@ -71,7 +71,7 @@ services:
 ```
 
 ## Development
-`docker-compose.override.dev.yml` offers a good set of customizations to ease Cerebrate development, such as installing xdebug and exposing ports for all internal containers.
+`docker-compose.override.dev.yml` offers a good set of customizations to ease Cerebrate development, such as installing Xdebug and exposing extra ports for internal containers.
 
 Run:
 
@@ -93,7 +93,7 @@ chmod g+rwxs .
 ### Composer
 You can run composer commands inside the container like this:
 ```
-$ docker-compose exec php-fpm composer install
+$ docker-compose exec -u www-data php-fpm composer install
 ```
 
 ### Xdebug
@@ -110,9 +110,8 @@ Alternatively, to debug all requests, you can change the following setting:
 xdebug.start_with_request=yes
 ``` 
 
-Sample config file for `vscode`:
+Sample config file for `launch.json` for VSCODE:
 ```json
-# launch.json
 {
     "version": "0.2.0",
     "configurations": [
