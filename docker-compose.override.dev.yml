@@ -1,8 +1,5 @@
 version: "3"
 services:
-  # nginx:
-  #   command: [ nginx-debug, '-g', 'daemon off;' ]
-
   php-fpm:
     build:
       context: ./
