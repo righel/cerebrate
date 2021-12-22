@@ -28,7 +28,7 @@ If you the containers in the background run:
 $ docker-compose up -d
 ...
 Creating cerebrate_nginx    ... done
-Creating cerebrate_database ... done
+Creating cerebrate_mariadb ... done
 Creating cerebrate_php-fpm  ... done
 ```
 
@@ -36,11 +36,11 @@ Creating cerebrate_php-fpm  ... done
 
 Cerebrate is composed by the following containers:
 
-| Service            | Base Image | External Port | Internal Port (not exposed) |
-| ------------------ | ---------- | ------------- | --------------------------- |
-| cerebrate_nginx    | nginx      | 8443          | 443                         |
-| cerebrate_php-fpm  | php-fpm    | -             | 9000                        |
-| cerebrate_database | mariadb    | -             | 3306                        |
+| Service           | Base Image | External Port | Internal Port (not exposed) |
+| ----------------- | ---------- | ------------- | --------------------------- |
+| cerebrate_nginx   | nginx      | 8443          | 443                         |
+| cerebrate_php-fpm | php-fpm    | -             | 9000                        |
+| cerebrate_mariadb | mariadb    | -             | 3306                        |
 
 
 * The database data files will be located in `./run/database`.

@@ -2,14 +2,19 @@ name: Docker
 
 on:
   push:
-    branches: [main, refactor-docker-env ]
+    branches: [main, refactor-docker-env]
     tags: ["v*.*"]
   pull_request:
     branches: [main]
+  workflow_dispatch:
+    inputs:
+      release_number:
+        description: "Release version (x.y.z format)"
+        required: true
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  REPO_NAME: ${{ github.repository }}
 
 jobs:
   build:
@@ -37,14 +42,20 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
+      - id: set-repo-org
+        run: echo ::set-output name=repoorg::${GITHUB_REPOSITORY%%/*} | tr '[:upper:]' '[:lower:]'
+
       # https://github.com/docker/build-push-action
       - name: Build and push php-fpm Docker image
         uses: docker/build-push-action@v2
+        env:
+          REPO_ORG: ${{ steps.set-repo-org.outputs.repoorg }}
+          SERVICE: "php-fpm"
         with:
           file: docker/php-fpm/Dockerfile
           context: ./docker/php-fpm
           push: ${{ github.event_name != 'pull_request' }}
-          tags: core-${{ steps.meta.outputs.tags }}
+          tags: ${{ env.REGISTRY }}/${{ env.REPO_ORG }}/${{ env.REPO_NAME }}-${{ env.SERVICE}}:${{ github.event.inputs.release_number }}, ${{ env.REPO_ORG }}/${{ env.REPO_NAME }}-${{ env.docker-image}}:latest
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
             "COMPOSER_VERSION=2.1.14"
@@ -52,9 +63,12 @@ jobs:
 
       - name: Build and push nginx Docker image
         uses: docker/build-push-action@v2
+        env:
+          REPO_ORG: ${{ steps.set-repo-org.outputs.repoorg }}
+          SERVICE: "nginx"
         with:
           file: docker/nginx/Dockerfile
           context: ./docker/nginx
           push: ${{ github.event_name != 'pull_request' }}
-          tags: www-${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ env.REGISTRY }}/${{ env.REPO_ORG }}/${{ env.REPO_NAME }}-${{ env.SERVICE}}:${{ github.event.inputs.release_number }}, ${{ env.REPO_ORG }}/${{ env.REPO_NAME }}-${{ env.docker-image}}:latest
+y          labels: ${{ steps.meta.outputs.labels }}

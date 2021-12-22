@@ -1,8 +1,8 @@
 version: "3"
 services:
-  www:
+  nginx:
     container_name: cerebrate_nginx
-    image: ghcr.io/righel/cerebrate-www
+    image: ghcr.io/righel/cerebrate-nginx
     # image: ghcr.io/cerebrate-project/cerebrate-www
     build:
       context: ./nginx
@@ -17,7 +17,7 @@ services:
 
   php-fpm:
     container_name: cerebrate_php-fpm
-    image: ghcr.io/righel/cerebrate-core
+    image: ghcr.io/righel/cerebrate-php-fpm
     # image: ghcr.io/cerebrate-project/cerebrate-core
     build:
       context: ./php-fpm
@@ -48,9 +48,9 @@ services:
       CEREBRATE_DB_HOST: database
       CEREBRATE_SECURITY_SALT: supersecret
 
-  database:
+  mariadb:
     image: mariadb:10.6
-    container_name: cerebrate_database
+    container_name: cerebrate_mariadb
     restart: always
     volumes:
       - ./run/database:/var/lib/mysql
