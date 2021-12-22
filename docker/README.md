@@ -4,7 +4,7 @@ Dependencies:
   * `docker`. See [https://docs.docker.com/engine/installation](https://docs.docker.com/engine/installation)
   * `docker-compose`. See [docs.docker.com/compose/install](https://docs.docker.com/compose/install/)
 
-Run:
+In the root directory of this repository run:
 ```
 $ docker-compose up -d
 ...
@@ -43,10 +43,6 @@ Cerebrate is composed by the following containers:
 | cerebrate_mariadb | mariadb    | -             | 3306                        |
 
 
-* The database data files will be located in `./run/database`.
-* Application logs (CakePHP / Cerebrate) will be stored in `./run/logs`.
-* Application temporary files will be stored in `./run/tmp`.
-
 ## Configuration
 The recommended way to customize your docker deployment is by introducing a `docker-compose.override.yml` file, you can use `docker-compose.override.dist.yml` as a template.
 ### PHP
@@ -69,9 +65,9 @@ You can override this certificate with:
 # docker-compose.override.yml
 version: "3"
 services:
-  www:
+  nginx:
     volumes:
-      - ./nginx/ssl:/etc/nginx/ssl
+      - ./docker/nginx/ssl:/etc/nginx/ssl
 ```
 
 ## Development
@@ -92,6 +88,12 @@ If you encounter permissions issues when trying to modify the source files from 
 sudo usermod -a -G www-data your_user
 chgrp your_user .
 chmod g+rwxs .
+```
+
+### Composer
+You can run composer commands inside the container like this:
+```
+$ docker-compose exec php-fpm composer install
 ```
 
 ### Xdebug
@@ -120,7 +122,7 @@ Sample config file for `vscode`:
             "request": "launch",
             "port": 9003,
             "pathMappings": {
-                "/var/www/app/": "${workspaceRoot}/",
+                "/var/www/app/": "${workspaceRoot}/app",
             },
         },
     ]

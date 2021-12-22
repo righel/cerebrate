@@ -1,0 +1,51 @@
+version: "3"
+services:
+  nginx:
+    image: cerebrate-project/cerebrate-nginx
+    container_name: cerebrate_nginx
+    build:
+      context: ./
+      dockerfile: ./docker/nginx/Dockerfile
+    volumes:
+      - ./docker/nginx/nginx.conf.template:/etc/nginx/templates/default.conf.template
+    environment:
+      NGINX_HOST: cerebrate.local
+      NGINX_PORT: 443
+    ports:
+      - "8443:443"
+
+  php-fpm:
+    image: cerebrate-project/cerebrate-php-fpm
+    container_name: cerebrate_php-fpm
+    build:
+      context: ./
+      dockerfile: ./docker/php-fpm/Dockerfile
+      args:
+        PHP_VERSION: "7.4"
+        COMPOSER_VERSION: "2.1.14"
+    volumes:
+      - ./docker/php-fpm/etc/php-fpm-overrides.conf:/usr/local/etc/php-fpm.d/php-fpm-overrides.conf
+      - ./docker/wait-for-it.sh:/usr/local/bin/wait-for-it.sh:ro
+    entrypoint: "wait-for-it.sh -t 0 -h cerebrate_mariadb -p 3306 -- /entrypoint.sh php-fpm -F"
+    environment:
+      CEREBRATE_DB_USERNAME: "cerebrate"
+      CEREBRATE_DB_PASSWORD: "etarberec"
+      CEREBRATE_DB_NAME: "cerebrate"
+      CEREBRATE_DB_HOST: cerebrate_mariadb
+      CEREBRATE_SECURITY_SALT: supersecret
+
+  mariadb:
+    image: mariadb:10.6
+    container_name: cerebrate_mariadb
+    restart: always
+    volumes:
+      - cerebrate_data:/var/lib/mysql
+      - ./INSTALL/mysql.sql:/docker-entrypoint-initdb.d/mysql.sql:ro
+    environment:
+      MARIADB_RANDOM_ROOT_PASSWORD: "yes"
+      MYSQL_DATABASE: "cerebrate"
+      MYSQL_USER: "cerebrate"
+      MYSQL_PASSWORD: "etarberec"
+
+volumes:
+  cerebrate_data: {}

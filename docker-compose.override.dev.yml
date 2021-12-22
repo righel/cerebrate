@@ -1,0 +1,33 @@
+version: "3"
+services:
+  # nginx:
+  #   command: [ nginx-debug, '-g', 'daemon off;' ]
+
+  php-fpm:
+    build:
+      context: ./
+      dockerfile: ./docker/php-fpm/Dockerfile
+      args:
+        DEV: "true"
+        PHP_VERSION: "7.4"
+        COMPOSER_VERSION: "2.1.14"
+    volumes:
+      - ./app/composer.json:/var/www/app/composer.json
+      - ./app/webroot:/var/www/app/webroot
+      - ./app/src:/var/www/app/src
+      - ./app/templates:/var/www/app/templates
+      - ./app/plugins:/var/www/app/plugins
+      - ./app/config:/var/www/app/config
+      - ./app/bin:/var/www/app/bin
+      - ./app/libraries:/var/www/app/libraries
+      - ./app/resources:/var/www/app/resources
+      - ./app/config/config.example.json:/var/www/app/config/config.json
+      - ./docker/run/logs:/var/www/app/logs
+      - ./docker/php-fpm/etc/app_local.php:/var/www/app/config/app_local.php
+      - ./docker/php-fpm/etc/docker-php-ext-xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+    environment:
+      PHP_IDE_CONFIG: "serverName=cerebrate"
+
+  mariadb:
+    ports:
+      - "33060:3306"

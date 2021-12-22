@@ -1,5 +1,5 @@
 {
-    "source": "/var/www/cerebrate/src/Command/misp_org.json",
+    "source": "/var/www/cerebrate/app/src/Command/misp_org.json",
     "finder": {
         "joinFields": {
             "squashed": "name",

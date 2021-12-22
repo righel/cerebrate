@@ -8,9 +8,9 @@ RUN apt-get update && \
 	docker-php-ext-install intl pdo pdo_mysql mysqli simplexml
 
 # install xdebug if requested
-ARG DEBUG
-ENV DEBUG=$DEBUG
-RUN if [ "${DEBUG}" = "true" ]; then \
+ARG DEV
+ENV DEV=$DEV
+RUN if [ "${DEV}" = "true" ]; then \
 	pecl install xdebug && docker-php-ext-enable xdebug ; \
 	fi
 
@@ -20,12 +20,42 @@ RUN apt-get remove -y --purge libicu-dev libxml2-dev && \
 	rm -rf /var/lib/apt/lists/*
 
 # entrypoint
-COPY entrypoint.sh /entrypoint.sh
+COPY docker/php-fpm/entrypoint.sh /entrypoint.sh
 RUN chmod 755 /entrypoint.sh
+
+# copy actual codebase
+COPY --chown=www-data app /var/www/app
+WORKDIR /var/www/app
 
 # install composer
 ARG COMPOSER_VERSION
 RUN curl -sL https://getcomposer.org/installer | \
 	php -- --install-dir=/usr/bin/ --filename=composer --version=${COMPOSER_VERSION}
 
+# last checks with unprivileged user
+USER www-data
+
+# install composer dependencies
+ARG DEV
+RUN if [ "$DEV" = "true" ] ; then \
+		composer install --no-interaction ; \
+	else \ 
+		composer install \
+			--no-interaction \
+			--no-plugins \
+			--no-scripts \
+			--no-progress \
+			--prefer-dist \
+			--optimize-autoloader \
+			--no-dev ; \
+	fi
+
+# app config override making use of environment variables
+COPY --chown=www-data docker/php-fpm/etc/app_local.php /var/www/app/config/app_local.php
+
+# version 1.0 addition requires a config/config.json file
+# can still be overriden by a docker volume
+RUN cp -a /var/www/app/config/config.example.json /var/www/app/config/config.json
+
+# run entrypoint as www-data
 ENTRYPOINT [ "/entrypoint.sh" ]
