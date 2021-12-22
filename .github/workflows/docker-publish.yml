@@ -42,20 +42,17 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
-      - id: set-repo-org
-        run: echo ::set-output name=repoorg::${GITHUB_REPOSITORY%%/*} | tr '[:upper:]' '[:lower:]'
-
       # https://github.com/docker/build-push-action
       - name: Build and push php-fpm Docker image
         uses: docker/build-push-action@v2
         env:
-          REPO_ORG: ${{ steps.set-repo-org.outputs.repoorg }}
+          VERSION: ${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
           SERVICE: "php-fpm"
         with:
           file: docker/php-fpm/Dockerfile
           context: ./docker/php-fpm
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ env.REGISTRY }}/${{ env.REPO_ORG }}/${{ env.REPO_NAME }}-${{ env.SERVICE}}:${{ github.event.inputs.release_number }}, ${{ env.REPO_ORG }}/${{ env.REPO_NAME }}-${{ env.docker-image}}:latest
+          tags: ${{ env.REGISTRY }}/${{ env.REPO_NAME }}-${{ env.SERVICE}}:${{ github.event.inputs.release_number }}, /${{ env.REPO_NAME }}-${{ env.docker-image}}:latest
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
             "COMPOSER_VERSION=2.1.14"
@@ -64,11 +61,11 @@ jobs:
       - name: Build and push nginx Docker image
         uses: docker/build-push-action@v2
         env:
-          REPO_ORG: ${{ steps.set-repo-org.outputs.repoorg }}
+          VERSION: ${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
           SERVICE: "nginx"
         with:
           file: docker/nginx/Dockerfile
           context: ./docker/nginx
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ env.REGISTRY }}/${{ env.REPO_ORG }}/${{ env.REPO_NAME }}-${{ env.SERVICE}}:${{ github.event.inputs.release_number }}, ${{ env.REPO_ORG }}/${{ env.REPO_NAME }}-${{ env.docker-image}}:latest
+          tags: ${{ env.REGISTRY }}/${{ env.REPO_NAME }}-${{ env.SERVICE}}:${{ github.event.inputs.release_number }}, /${{ env.REPO_NAME }}-${{ env.docker-image}}:latest
           labels: ${{ steps.meta.outputs.labels }}
