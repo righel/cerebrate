@@ -9,3 +9,4 @@ app/webroot/theme/node_modules
 .vscode
 docker/run/
 docker/docker-compose.override.yml
+.phpunit.result.cache

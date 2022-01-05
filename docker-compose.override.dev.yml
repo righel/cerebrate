@@ -10,6 +10,7 @@ services:
         COMPOSER_VERSION: "2.1.14"
     volumes:
       - ./app/composer.json:/var/www/app/composer.json
+      - ./app/phpunit.xml.dist:/var/www/app/phpunit.xml.dist
       - ./app/webroot:/var/www/app/webroot
       - ./app/src:/var/www/app/src
       - ./app/templates:/var/www/app/templates
@@ -18,11 +19,13 @@ services:
       - ./app/bin:/var/www/app/bin
       - ./app/libraries:/var/www/app/libraries
       - ./app/resources:/var/www/app/resources
+      - ./app/tests:/var/www/app/tests
+      - ./app/vendor:/var/www/app/vendor
       - ./app/config/config.example.json:/var/www/app/config/config.json
-      - ./docker/run/logs:/var/www/app/logs
       - ./docker/php-fpm/etc/app_local.php:/var/www/app/config/app_local.php
       - ./docker/php-fpm/etc/docker-php-ext-xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
     environment:
+      DEBUG: "true"
       PHP_IDE_CONFIG: "serverName=cerebrate"
 
   mariadb:
