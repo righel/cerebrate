@@ -28,10 +28,9 @@ jobs:
         with:
           host port: 3306
           container port: 3306
-          mysql root password: "bar"
           mysql database: "test_cerebrate"
           mysql user: "cerebrate"
-          mysql password: "etarberec"
+          mysql password: "cerebrate"
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -46,7 +45,7 @@ jobs:
           sudo apt-get -y update
           sudo apt-get install -y --no-install-recommends curl git zip unzip libicu-dev libxml2-dev
 
-    
+
       - name: Run tests
         run: |
           composer install --no-progress --no-interaction
