@@ -9,13 +9,12 @@ on:
 jobs:
   test:
     runs-on: ${{ matrix.os }}
-
+    timeout-minutes: 5
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-20.04]
-        php: ["7.4", "8.1"]
-
+        php: ["7.4"]
     steps:
       - uses: actions/checkout@v2
 
@@ -47,9 +46,11 @@ jobs:
           sudo apt-get -y update
           sudo apt-get install -y --no-install-recommends curl git zip unzip libicu-dev libxml2-dev
 
+    
       - name: Run tests
         run: |
           composer install --no-progress --no-interaction
+
           composer test
         env:
           DEBUG: true
