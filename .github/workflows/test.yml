@@ -49,7 +49,7 @@ jobs:
 
       - name: Run tests
         run: |
-          php composer.phar install --no-progress --no-interaction
-          php composer.phar test
+          composer install --no-progress --no-interaction
+          composer test
         env:
           DEBUG: true
