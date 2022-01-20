@@ -74,11 +74,9 @@ return [
          */
         'test' => [
             'host' => 'localhost',
-            //'port' => 'non_standard_port_number',
-            'username' => 'my_app',
-            'password' => 'secret',
-            'database' => 'test_myapp',
-            //'schema' => 'myapp',
+            'username' => 'cerebrate',
+            'password' => 'cerebrate',
+            'database' => 'cerebrate_test',
         ],
     ],
 
