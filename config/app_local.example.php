@@ -73,7 +73,7 @@ return [
          * The test connection is used during the test suite.
          */
         'test' => [
-            'host' => 'localhost',
+            'host' => '127.0.0.1',
             'username' => 'cerebrate',
             'password' => 'cerebrate',
             'database' => 'cerebrate_test',
