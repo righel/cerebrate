@@ -44,8 +44,8 @@ jobs:
         env:
           php_version: ${{ matrix.php }}
         run: |
-          apt-get -y update
-          apt-get install -y --no-install-recommends curl git zip unzip libicu-dev libxml2-dev
+          sudo apt-get -y update
+          sudo apt-get install -y --no-install-recommends curl git zip unzip libicu-dev libxml2-dev
 
       - name: Run tests
         run: |
